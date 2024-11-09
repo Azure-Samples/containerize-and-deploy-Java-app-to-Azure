@@ -34,7 +34,7 @@ public class FBS
 {        
     public ArrayList<Features> populateFeatures(Connection con)
     {
-        ArrayList<Features> features = new ArrayList();        
+        ArrayList<Features> features = new ArrayList<>();        
         
         try
         {            
@@ -91,7 +91,7 @@ public class FBS
     
     public ArrayList<Customer> populateCustomers(Connection con)
     {
-        ArrayList<Customer> customers = new ArrayList();        
+        ArrayList<Customer> customers = new ArrayList<>();        
         
         try
         {            
@@ -120,7 +120,7 @@ public class FBS
     
     public ArrayList<Flight> getAllFlights(Connection con, ArrayList<Customer> customers, ArrayList<Features> features)
     {
-        ArrayList<Flight> flights = new ArrayList();        
+        ArrayList<Flight> flights = new ArrayList<>();        
         
         try
         {            
@@ -157,7 +157,7 @@ public class FBS
                 flights.add(f);                                                
               
                 
-                ArrayList<Seat> seats = new ArrayList();
+                ArrayList<Seat> seats = new ArrayList<>();
                 
                 Statement stmt1 = con.createStatement();                
                 sql = "Select * from Seats where flightName = '" +flightName+ "'";
@@ -335,8 +335,6 @@ public class FBS
             statement.setTimestamp(2, new Timestamp(d.getTime()));
             
             ResultSet r = statement.executeQuery();
-
-            boolean isFound = false;
             
             while(r.next())
             {
@@ -358,7 +356,7 @@ public class FBS
     //-------------------------------FOR AUTOCOMPLETION THROUGH AJAX----------------------------//
     public ArrayList<String> getCities(Connection con, String city_name) 
     {
-        ArrayList<String> list = new ArrayList();
+        ArrayList<String> list = new ArrayList<>();
         PreparedStatement ps = null;
         String data;
         try 

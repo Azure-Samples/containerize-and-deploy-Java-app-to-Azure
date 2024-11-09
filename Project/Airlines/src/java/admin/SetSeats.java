@@ -8,11 +8,12 @@ package admin;
 
 import models.Flight;
 import java.io.IOException;
-import java.util.ArrayList;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  *
@@ -20,39 +21,33 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class SetSeats extends HttpServlet {
 
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        ArrayList<Flight> flights = (ArrayList<Flight>) (getServletContext().getAttribute("flights"));
+        var flightsObj = getServletContext().getAttribute("flights");
+        if (flightsObj instanceof List<?> list) {
+            @SuppressWarnings("unchecked")
+            var flights = (List<Flight>)list;
 
-        Flight flight = null;
-        
-        for (int i = 0; i < flights.size(); i++)
-        {
-            if (flights.get(i).getFlightName().equals(request.getParameter("flight_name")))
-            {
-                flight = flights.get(i);
-                break;
-            }            
+            flights.stream()
+                .filter(f -> f.getFlightName().equals(request.getParameter("flight_name")))
+                .findFirst()
+                .ifPresent(f -> {
+                    f.setOldESeats(f.getEconomySeats());
+                    f.setOldBSeats(f.getBusinessSeats());
+                    f.setOldFSeats(f.getFirstSeats());
+                    f.setOldTSeats(f.getTotalSeats());
+
+                    f.setEconomySeats(Integer.parseInt(request.getParameter("seats_e")));
+                    f.setBusinessSeats(Integer.parseInt(request.getParameter("seats_b")));
+                    f.setFirstSeats(Integer.parseInt(request.getParameter("seats_f")));
+                    f.setTotalSeats(f.getEconomySeats() + f.getBusinessSeats() + f.getFirstSeats());
+
+                    f.setCurrentSeats(f.getTotalSeats());
+                    f.isChanged = true;
+                });
         }
-            
-        flight.setOldESeats(flight.getEconomySeats());
-        flight.setOldBSeats(flight.getBusinessSeats());
-        flight.setOldFSeats(flight.getFirstSeats());        
-        flight.setOldTSeats(flight.getTotalSeats());
-
-        flight.setEconomySeats(Integer.parseInt (request.getParameter("seats_e")));
-        flight.setBusinessSeats(Integer.parseInt (request.getParameter("seats_b")));        
-        flight.setFirstSeats(Integer.parseInt (request.getParameter("seats_f")));
-        flight.setTotalSeats(flight.getEconomySeats() + flight.getBusinessSeats() + flight.getFirstSeats());
-        
-        flight.setCurrentSeats(flight.getTotalSeats());
-        
-        
-        flight.isChanged = true;
-
         response.sendRedirect("SetSeats.jsp");        
     }
 }

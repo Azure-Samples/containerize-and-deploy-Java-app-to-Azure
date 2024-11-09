@@ -8,11 +8,13 @@ package manager;
 
 import models.Features;
 import java.io.IOException;
-import java.util.ArrayList;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.stream.IntStream;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  *
@@ -25,36 +27,36 @@ public class DisapproveFeatures extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        ArrayList<Features> f = (ArrayList<Features>) (getServletContext().getAttribute("features"));
-                                
-        for (int i = 0; i < 3; i++)
-        {
+        // ArrayList<Features> f = (ArrayList<Features>) (getServletContext().getAttribute("features"));
 
-            (f.get(i)).setSeatPitch( f.get(i).getNewSeatPitch() );
-            (f.get(i)).setSeatWidth( f.get(i).getNewSeatWidth() );            
-            (f.get(i)).setVideoType( f.get(i).getNewVideoType() );            
-            (f.get(i)).setPowerType( f.get(i).getNewPowerType() );            
-            (f.get(i)).setSeatType( f.get(i).getNewSeatType() );            
-            (f.get(i)).setPrice( f.get(i).getNewPrice() );
-            (f.get(i)).setWifi( f.get(i).getNewWifi() );
-            (f.get(i)).setSpecialFood( f.get(i).getNewSpecialFood() );
+        var featuresObj = getServletContext().getAttribute("features");
+        if (featuresObj instanceof List<?> list) {
+            @SuppressWarnings("unchecked")
+            var f = (List<Features>) list;
 
+            IntStream.range(0, 3).forEach(i -> {
+                var feature = f.get(i);            
 
-            (f.get(i)).setNewSeatPitch( 0);
-            (f.get(i)).setNewSeatWidth( 0);            
-            (f.get(i)).setNewVideoType( null);            
-            (f.get(i)).setNewPowerType( null);            
-            (f.get(i)).setNewSeatType( null);            
-            (f.get(i)).setNewPrice( 0);
-            (f.get(i)).setNewWifi( null);
-            (f.get(i)).setNewSpecialFood( null);
-                        
+                (feature).setSeatPitch(feature.getNewSeatPitch() );
+                (feature).setSeatWidth(feature.getNewSeatWidth() );            
+                (feature).setVideoType(feature.getNewVideoType() );            
+                (feature).setPowerType(feature.getNewPowerType() );            
+                (feature).setSeatType(feature.getNewSeatType() );            
+                (feature).setPrice(feature.getNewPrice() );
+                (feature).setWifi(feature.getNewWifi() );
+                (feature).setSpecialFood(feature.getNewSpecialFood());
+
+                (feature).setNewSeatPitch( 0);
+                (feature).setNewSeatWidth( 0);            
+                (feature).setNewVideoType( null);            
+                (feature).setNewPowerType( null);            
+                (feature).setNewSeatType( null);            
+                (feature).setNewPrice( 0);
+                (feature).setNewWifi( null);
+                (feature).setNewSpecialFood( null);
+                Features.isChanged = false;
+            });
         }
-
-        Features.isChanged = false;
-        
         response.sendRedirect("ApproveFeatures.jsp");
     }
-
-
 }

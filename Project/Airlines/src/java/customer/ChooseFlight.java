@@ -9,19 +9,12 @@ package customer;
 import models.Customer;
 import models.Flight;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Properties;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 
 /**
@@ -35,20 +28,18 @@ public class ChooseFlight extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        ArrayList<Flight> flights = (ArrayList<Flight>) (getServletContext().getAttribute("flights"));
+        var flightsObj = getServletContext().getAttribute("flights");
+        if (flightsObj instanceof List<?> list) {
+            @SuppressWarnings("unchecked")
+            var flights = (List<Flight>)list;
 
-        Flight f = null;
-        
-        for (int i = 0; i < flights.size(); i++)
-        {
-            if (flights.get(i).getFlightName().equals(request.getParameter("flight_name")))
-            {
-                f = flights.get(i);
-                break;
-            }            
-        }
-        
-        f.setCustomer((Customer)(request.getSession().getAttribute("customer")));
+            flights.stream()
+                .filter(f -> f.getFlightName().equals(request.getParameter("flight_name")))
+                .findFirst()
+                .ifPresent(f -> {
+                    f.setCustomer((Customer)(request.getSession().getAttribute("customer")));
+                });
+            }
         
         /*
         //CODE TO SEND EMAIL

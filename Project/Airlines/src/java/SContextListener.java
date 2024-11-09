@@ -4,8 +4,8 @@ import models.Customer;
 import models.FBS;
 import models.Features;
 import models.Flight;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 
 public class SContextListener implements ServletContextListener 

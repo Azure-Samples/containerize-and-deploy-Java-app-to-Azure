@@ -8,11 +8,12 @@ package manager;
 
 import models.Flight;
 import java.io.IOException;
-import java.util.ArrayList;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  *
@@ -25,27 +26,23 @@ public class ApproveSeats extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        ArrayList<Flight> flights = (ArrayList<Flight>) (getServletContext().getAttribute("flights"));
+        // ArrayList<Flight> flights = (ArrayList<Flight>) (getServletContext().getAttribute("flights"));
+        var flightsObj = getServletContext().getAttribute("flights");
+        if (flightsObj instanceof List<?> list) {
+            @SuppressWarnings("unchecked")
+            var flights = (List<Flight>)list;
 
-        Flight f = null;
-        
-        String a = request.getParameter("flight_name");
-        
-        for (int i = 0; i < flights.size(); i++)
-        {
-            if (flights.get(i).getFlightName().equals(request.getParameter("flight_name")))
-            {
-                f = flights.get(i);
-                break;
-            }            
-        }
-        
-        f.setOldESeats(0);
-        f.setOldBSeats(0);
-        f.setOldFSeats(0);
-        f.setOldTSeats(0);
-
-        f.isChanged = false;
+            flights.stream()
+            .filter(flight -> flight.getFlightName().equals(request.getParameter("flight_name")))
+            .findFirst()
+            .ifPresent(flight -> {
+                flight.setOldESeats(0);
+                flight.setOldBSeats(0);
+                flight.setOldFSeats(0);
+                flight.setOldTSeats(0);
+                flight.isChanged = false;            
+            });
+        }        
         response.sendRedirect("ApproveSeats.jsp");
     }
 }

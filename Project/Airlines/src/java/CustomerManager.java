@@ -5,15 +5,15 @@
  */
 
 import models.Customer;
-import models.FBS;
+
 import java.io.IOException;
-import java.sql.Connection;
-import java.util.ArrayList;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import java.util.List;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  *
@@ -25,27 +25,27 @@ public class CustomerManager extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        if (request.getSession().getAttribute("customer") == null){
-        
-        HttpSession s = request.getSession();
-        String customerEmail = request.getRemoteUser();
+        if (request.getSession().getAttribute("customer") == null) {
 
-        ArrayList<Customer> c = (ArrayList<Customer>)(getServletContext().getAttribute("customers"));
+            HttpSession s = request.getSession();
+            String customerEmail = request.getRemoteUser();
 
-        for(int i = 0; i < c.size(); i++)
-        {
-            if (c.get(i).getEmail().equals(customerEmail))
-            {
-                s.setAttribute("customer", c.get(i));      
-                break;                                  
-           }
+            var customersObj = getServletContext().getAttribute("customers");
+            if (customersObj instanceof List<?> list) {
+                @SuppressWarnings("unchecked")
+                var c = (List<Customer>) list;
+
+                c.stream()
+                        .filter(customer -> customer.getEmail().equals(customerEmail))
+                        .findFirst()
+                        .ifPresent(customer -> s.setAttribute("customer", customer));
+
+            }
         }
-                
-    }
         String uri = request.getRequestURI();
-        String page  = uri.split("/")[2];
+        String page = uri.split("/")[2];
         page = page.split(".jsp")[0] + ".jsp";
 
-        request.getRequestDispatcher(page).forward(request,response);
+        request.getRequestDispatcher(page).forward(request, response);
     }
 }
