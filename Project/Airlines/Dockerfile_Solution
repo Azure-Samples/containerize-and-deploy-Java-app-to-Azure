@@ -1,18 +1,63 @@
-#
-# Build stage
-#
-FROM maven:3.6.0-jdk-11-slim AS build
+############################################
+# Tomcat Intall stage
+############################################
+FROM mcr.microsoft.com/openjdk/jdk:17-ubuntu AS tomcat
+
+ENV CATALINA_HOME=/usr/local/tomcat
+
+# Configure Tomcat Version  
+ENV TOMCAT_VERSION=10.1.31  
+  
+# Install Tomcat and required packages
+RUN apt-get update && \  
+    apt-get install -y curl && \  
+    curl -O https://downloads.apache.org/tomcat/tomcat-10/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz && \  
+    tar xzf apache-tomcat-${TOMCAT_VERSION}.tar.gz && \  
+    mv apache-tomcat-${TOMCAT_VERSION} ${CATALINA_HOME} && \  
+    rm apache-tomcat-${TOMCAT_VERSION}.tar.gz && \  
+    apt-get remove --purge -y curl && \  
+    apt-get autoremove -y && \  
+    apt-get clean  
+
+############################################
+# Build stage (Compile with Java 17)
+############################################
+FROM mcr.microsoft.com/openjdk/jdk:17-ubuntu AS build
+
 WORKDIR /build
+
+# Install Maven 
+RUN apt-get update && apt-get install -y maven
+
+# Copy source code
 COPY pom.xml .
 COPY src ./src
 COPY web ./web
+
+# Build the project
 RUN mvn clean package
 
-#
-# Package stage
-#
-FROM tomcat:8.5.72-jre11-openjdk-slim
-COPY tomcat-users.xml /usr/local/tomcat/conf
-COPY --from=build /build/target/*.war /usr/local/tomcat/webapps/FlightBookingSystemSample.war
+############################################
+# Package final stage
+############################################
+FROM mcr.microsoft.com/openjdk/jdk:17-mariner
+
+# Configure the location of the Tomcat installation
+ENV CATALINA_HOME=/usr/local/tomcat
+# Configure the path to the Tomcat binaries
+ENV PATH=$CATALINA_HOME/bin:$PATH
+
+# This is the user that will run the Tomcat process
+USER app
+
+# Copy the Tomcat installation from the Tomcat stage
+COPY --chown=app:app --from=tomcat ${CATALINA_HOME} ${CATALINA_HOME}
+# Copy the Tomcat configuration files
+COPY --chown=app:app tomcat-users.xml ${CATALINA_HOME}/conf
+# Copy the compiled WAR file from the build stage
+COPY --chown=app:app --from=build /build/target/*.war ${CATALINA_HOME}/webapps/FlightBookingSystemSample.war
+
+# Expose the default Tomcat port
 EXPOSE 8080
+# Start Tomcat
 CMD ["catalina.sh", "run"]

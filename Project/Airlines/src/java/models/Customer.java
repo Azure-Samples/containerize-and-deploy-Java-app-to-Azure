@@ -30,7 +30,7 @@ public class Customer extends Person {
     public void setSeat(Seat s)
     {
         if(seats == null)
-            seats = new ArrayList();
+            seats = new ArrayList<>();
         
         seats.add(s);
     }

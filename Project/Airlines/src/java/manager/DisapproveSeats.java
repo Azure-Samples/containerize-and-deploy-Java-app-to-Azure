@@ -6,15 +6,14 @@ package manager;
  * and open the template in the editor.
  */
 
-import models.FBS;
 import models.Flight;
 import java.io.IOException;
-import java.sql.Connection;
-import java.util.ArrayList;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  *
@@ -27,31 +26,30 @@ public class DisapproveSeats extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        ArrayList<Flight> flights = (ArrayList<Flight>) (getServletContext().getAttribute("flights"));
+        // ArrayList<Flight> flights = (ArrayList<Flight>) (getServletContext().getAttribute("flights"));
+        var flightsObj = getServletContext().getAttribute("flights");
+        if (flightsObj instanceof List<?> list) {
+            @SuppressWarnings("unchecked")
+            var flights = (List<Flight>)list;
 
-        Flight f = null;
-        
-        for (int i = 0; i < flights.size(); i++)
-        {
-            if (flights.get(i).getFlightName().equals(request.getParameter("flight_name")))
-            {
-                f = flights.get(i);
-                break;
-            }            
-        }
-        
-        f.setEconomySeats(f.getOldESeats());
-        f.setBusinessSeats(f.getOldBSeats());
-        f.setFirstSeats(f.getOldFSeats());
-        f.setTotalSeats(f.getOldTSeats());
-        f.setCurrentSeats(f.getTotalSeats());
-        
-        f.setOldESeats(0);
-        f.setOldBSeats(0);
-        f.setOldFSeats(0);
-        f.setOldTSeats(0);
-
-        f.isChanged = false;
+            flights.stream()
+                .filter(flight -> flight.getFlightName().equals(request.getParameter("flight_name")))
+                .findFirst()
+                .ifPresent(f -> {
+                    f.setEconomySeats(f.getOldESeats());
+                    f.setBusinessSeats(f.getOldBSeats());
+                    f.setFirstSeats(f.getOldFSeats());
+                    f.setTotalSeats(f.getOldTSeats());
+                    f.setCurrentSeats(f.getTotalSeats());
+                    
+                    f.setOldESeats(0);
+                    f.setOldBSeats(0);
+                    f.setOldFSeats(0);
+                    f.setOldTSeats(0);
+            
+                    f.isChanged = false;            
+                });
+        }        
         response.sendRedirect("ApproveSeats.jsp");
     }
 }

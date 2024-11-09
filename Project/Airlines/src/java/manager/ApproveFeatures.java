@@ -8,11 +8,13 @@ package manager;
 
 import models.Features;
 import java.io.IOException;
-import java.util.ArrayList;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.stream.IntStream;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  *
@@ -25,23 +27,25 @@ public class ApproveFeatures extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        ArrayList<Features> f = (ArrayList<Features>) (getServletContext().getAttribute("features"));
-        
-        
-        for (int i = 0; i < 3; i++)
-        {
-            (f.get(i)).setNewSeatPitch( 0);
-            (f.get(i)).setNewSeatWidth( 0);            
-            (f.get(i)).setNewVideoType( null);            
-            (f.get(i)).setNewPowerType( null);            
-            (f.get(i)).setNewSeatType( null);            
-            (f.get(i)).setNewPrice( 0);
-            (f.get(i)).setNewWifi( null);
-            (f.get(i)).setNewSpecialFood( null);
+        // ArrayList<Features> f = (ArrayList<Features>) (getServletContext().getAttribute("features"));
+        var featuresObj = getServletContext().getAttribute("features");
+        if (featuresObj instanceof List<?> list) {
+            @SuppressWarnings("unchecked")
+            var f = (List<Features>) list;
+
+            IntStream.range(0, 3).forEach(i -> {
+                var feature = f.get(i);
+                feature.setNewSeatPitch(0);
+                feature.setNewSeatWidth(0);
+                feature.setNewVideoType(null);
+                feature.setNewPowerType(null);
+                feature.setNewSeatType(null);
+                feature.setNewPrice(0);
+                feature.setNewWifi(null);
+                feature.setNewSpecialFood(null);
+            });            
+            Features.isChanged = false;
         }
-
-        Features.isChanged = false;
-
         response.sendRedirect("ApproveFeatures.jsp");
     }
 
